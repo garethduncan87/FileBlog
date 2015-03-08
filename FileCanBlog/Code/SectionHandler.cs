@@ -2,41 +2,86 @@
 using FileCanBlog.Models;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 
 namespace FileCanBlog.Code
 {
     public class SectionHandler
     {
-
-        public Section Load(string SectionTitle)
+        private string DatabaseLocation = ConfigurationManager.AppSettings["DatabaseLocation"];
+        private IFileCanDB<SectionModel> FileCanDbSection;
+        public SectionHandler()
         {
-            IFileCanDB<Section> FileCanDbSection = new FileCanDB<Section>("", "Sections", SectionTitle, StorageType.json, true);
-            return FileCanDbSection.GetPacket(SectionTitle).Data;
+            FileCanDbSection = new FileCanDB<SectionModel>(DatabaseLocation, "Sections", "Sections", StorageType.json, true);
         }
 
-        public bool Save(Section section)
+        
+
+        public SectionModel Load(string SectionTitle)
         {
-            IFileCanDB<Section> FileCanDbSection = new FileCanDB<Section>("", "Sections", section.TitleUrlFriendly, StorageType.json, true);
-            FileCanDbSection.InsertPacket(section, section.TitleUrlFriendly);
+            if (HttpRuntime.Cache[SectionTitle] == null)
+                LoadSectionsIntoCache();
+
+            return HttpRuntime.Cache[SectionTitle] as SectionModel;
+        }
+
+        public bool Save(SectionModel section)
+        {
+            FileCanDbSection.InsertPacket(section.TitleUrlFriendly, section);
+            LoadSectionsIntoCache();
             return true;
         }
 
-        public void Disable(string SectionTitle)
+        public bool Disable(string SectionTitle)
         {
-            IFileCanDB<Section> FileCanDbSection = new FileCanDB<Section>("", "Sections", SectionTitle, StorageType.json, true);
-            Section section = FileCanDbSection.GetPacket(SectionTitle).Data;
+            SectionModel section = FileCanDbSection.GetPacket(SectionTitle).Data;
             section.Enabled = false;
-            FileCanDbSection.UpdatePacket(SectionTitle, section);
+            if (FileCanDbSection.UpdatePacket(SectionTitle, section))
+                LoadSectionsIntoCache();
+            else
+                return false;
+            
+            return true;
         }
 
-        public IEnumerable<Section> List(string SectionTitle, int skip, int take, out int total)
+        public bool Delete(string SectionTitle)
         {
-            IFileCanDB<Section> FileCanDbSection = new FileCanDB<Section>("", "Sections", SectionTitle, StorageType.json, true);
-            var list = FileCanDbSection.GetPackets(0, 1000);
-            total = list.Count;
-            return list.Select(x => x.Data).ToList();
+            return FileCanDbSection.DeletePacket(SectionTitle);
+        }
+
+        public IEnumerable<SectionModel> List(int skip, int take, out int total)
+        {
+            var sections = GetSections();
+            total = sections.Count;
+            return sections.Skip(skip).Take(take);
+        }
+
+        private List<SectionModel> GetSections()
+        {
+            if (HttpRuntime.Cache["Sections"] == null)
+                LoadSectionsIntoCache();
+
+            if (HttpRuntime.Cache["Sections"] != null)
+                return HttpRuntime.Cache["Sections"] as List<SectionModel>;
+
+            return new List<SectionModel>();
+        }
+
+        private void LoadSectionsIntoCache()
+        {
+            List<SectionModel> sections = FileCanDbSection.GetPackets(0, 10000).Select(x =>x.Data).ToList();
+            sections.Sort((p1, p2) => p2.Created.CompareTo(p1.Created));
+
+            Parallel.ForEach(sections, section =>
+            {
+                //add each page to cache
+                HttpRuntime.Cache.Insert(section.TitleUrlFriendly, section);
+            });
+
+            HttpRuntime.Cache.Insert("Sections", sections);
         }
     }
 }

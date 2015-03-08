@@ -6,7 +6,7 @@ using System.Web;
 
 namespace FileCanBlog.Models
 {
-    public class Section
+    public class SectionModel
     {
         public string Title { get; set; }
         public string Description { get; set; }
