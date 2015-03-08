@@ -38,9 +38,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FileCanDB, Version=1.0.5543.29687, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="FileCanDB, Version=1.0.5545.30909, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\FileCanDB\FileCanDB\bin\Debug\FileCanDB.dll</HintPath>
+      <HintPath>..\packages\FileCanDB.1.0.5\lib\net40\FileCanDB.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
