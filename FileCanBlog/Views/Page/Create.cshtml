@@ -1,0 +1,26 @@
+﻿@model FileCanBlog.ViewModels.PageViewModel
+
+@using(Html.BeginForm()) {
+<div>
+    @Html.LabelFor(x=> x.page.Title) @Html.EditorFor(x=> x.page.Title)
+    <br />
+    @Html.LabelFor(x=> x.page.Description) @Html.EditorFor(x=> x.page.Description)
+    <br />
+    @Html.LabelFor(x=> x.page.Content) @Html.EditorFor(x=> x.page.Content)
+    <br />
+    @Html.LabelFor(x=> x.page.Image) @Html.EditorFor(x=> x.page.Image)
+    <br />
+    @Html.LabelFor(x => x.page.Modified) @Html.EditorFor(x => x.page.Modified)
+    <br />
+    @Html.LabelFor(x => x.page.PublishDate) @Html.EditorFor(x => x.page.PublishDate)
+
+    <br />
+    @Html.LabelFor(x => x.page.Categories) @Html.EditorFor(x => x.page.Categories)
+</div>
+<input type="submit" name="Command" value="Save" />
+}
+
+
+
+
+

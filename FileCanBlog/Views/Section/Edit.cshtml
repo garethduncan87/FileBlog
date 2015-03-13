@@ -1,0 +1,18 @@
+﻿@model FileCanBlog.ViewModels.SectionViewModel
+
+
+@Html.BeginForm()
+{
+    <div>
+        @Html.LabelFor(x=> x.section.Title) @Html.DisplayFor(x=> x.section.Title)
+        <br />
+        @Html.LabelFor(x=> x.section.Description) @Html.EditorFor(x=> x.section.Description)
+        <br />
+        @Html.LabelFor(x=> x.section.Created) @Html.EditorFor(x=> x.section.Created)
+    </div>
+    <input type="submit" name="Command" value="Save" />
+}
+
+
+
+
