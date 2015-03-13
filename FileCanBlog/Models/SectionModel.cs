@@ -14,6 +14,7 @@ namespace FileCanBlog.Models
         public bool Enabled { get; set; }
         public string TitleUrlFriendly
         {
+
             get
             {
                 return new string(Title.Where(ch => !Path.GetInvalidFileNameChars().Contains(ch)).ToArray());
