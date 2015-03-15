@@ -5,8 +5,14 @@
     {
         foreach (var item in Model)
         {
-            <li><a href="@Url.Action("Index", "Page", new { section = item.page.Section, title = item.page.TitleUrlFriendly })"@Html.DisplayFor(m => item.page.Title) <br />
-                @Html.DisplayFor(m => item.page.Description)
+            <li>
+                <a href="@Url.Action("Index", "Page", new { section = item.page.Section, title = item.page.TitleUrlFriendly })">
+
+                    <div>
+                        <h2>@Html.DisplayFor(m => item.page.Title)</h2>
+                        <p>@Html.DisplayFor(m => item.page.Description)</p>
+                    </div>
+                </a>
             </li>
         }
     }

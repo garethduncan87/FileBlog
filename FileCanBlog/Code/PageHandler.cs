@@ -110,7 +110,7 @@ namespace FileCanBlog.Code
             
             if(!string.IsNullOrEmpty(sort))
             {
-                PropertyInfo prop = typeof(string).GetProperty(sort);
+                PropertyInfo prop = typeof(PageModel).GetProperty(sort);
                 pages = pages.OrderBy(x => prop.GetValue(x, null)).ToList();
             }
 
