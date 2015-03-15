@@ -98,6 +98,7 @@
     <Compile Include="Code\SectionHandler.cs" />
     <Compile Include="Code\PageHandler.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\PageController.cs" />
     <Compile Include="Controllers\SectionController.cs" />
     <Compile Include="Global.asax.cs">
@@ -121,8 +122,9 @@
     <Content Include="Views\Section\Edit.cshtml" />
     <Content Include="Views\Section\List.cshtml" />
     <Content Include="Views\Section\Create.cshtml" />
-    <Content Include="Views\Shared\Layouts\_Main.cshtml" />
+    <Content Include="Views\Shared\Layouts\_MainLayout.cshtml" />
     <Content Include="Views\_ViewStart.cshtml" />
+    <Content Include="Views\Home\Index.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

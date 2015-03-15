@@ -29,6 +29,25 @@ namespace FileCanBlog.Controllers
             return View(results);
         }
 
+        public PartialViewResult FullList()
+        {
+            SectionHandler handler = new SectionHandler();
+            int take = 1000;
+            int skip = 0;
+            int total;
+            IEnumerable<SectionModel> sections = handler.List(skip, take, out total);
+            List<SectionViewModel> results = new List<SectionViewModel>();
+            foreach (var section in sections)
+            {
+                var sectionviewmodel = new SectionViewModel();
+                sectionviewmodel.section = section;
+                results.Add(sectionviewmodel);
+            }
+
+            return PartialView("List", results);
+        }
+
+
         public ActionResult Create()
         {
             return View();
