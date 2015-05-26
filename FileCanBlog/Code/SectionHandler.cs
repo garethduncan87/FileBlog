@@ -12,10 +12,10 @@ namespace FileCanBlog.Code
     public class SectionHandler
     {
         private string DatabaseLocation = ConfigurationManager.AppSettings["DatabaseLocation"];
-        private IFileCanDB<SectionModel> FileCanDbSection;
+        private FileCanDB<SectionModel> FileCanDbSection;
         public SectionHandler()
         {
-            FileCanDbSection = new FileCanDB<SectionModel>(DatabaseLocation, "Sections", "Sections", StorageType.json, true);
+            FileCanDbSection = new FileCanDB<SectionModel>(DatabaseLocation, "Sections", "Sections", true, StorageType.json);
         }
 
         
@@ -30,16 +30,16 @@ namespace FileCanBlog.Code
 
         public bool Save(SectionModel section)
         {
-            FileCanDbSection.InsertPacket(section.TitleUrlFriendly, section);
+            FileCanDbSection.Insert(section.TitleUrlFriendly, section);
             LoadSectionsIntoCache();
             return true;
         }
 
         public bool Disable(string SectionTitle)
         {
-            SectionModel section = FileCanDbSection.GetPacket(SectionTitle).Data;
+            SectionModel section = FileCanDbSection.Read(SectionTitle).Data;
             section.Enabled = false;
-            if (FileCanDbSection.UpdatePacket(SectionTitle, section))
+            if (FileCanDbSection.Update(SectionTitle, section))
                 LoadSectionsIntoCache();
             else
                 return false;
@@ -49,7 +49,7 @@ namespace FileCanBlog.Code
 
         public bool Delete(string SectionTitle)
         {
-            return FileCanDbSection.DeletePacket(SectionTitle);
+            return FileCanDbSection.Delete(SectionTitle);
         }
 
         public IEnumerable<SectionModel> List(int skip, int take, out int total)
@@ -72,7 +72,7 @@ namespace FileCanBlog.Code
 
         private void LoadSectionsIntoCache()
         {
-            List<SectionModel> sections = FileCanDbSection.GetPackets(0, 10000).Select(x =>x.Data).ToList();
+            List<SectionModel> sections = FileCanDbSection.ReadList(0, 10000).Select(x =>x.Data).ToList();
             sections.Sort((p1, p2) => p2.Created.CompareTo(p1.Created));
 
             Parallel.ForEach(sections, section =>

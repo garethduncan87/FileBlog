@@ -11,7 +11,7 @@ namespace FileCanBlog.Code
 {
     public class AccountHandler
     {
-        private IFileCanDB<UserModel> FileCanDbUser;
+        private FileCanDB<UserModel> FileCanDbUser;
         
         private string DatabaseLocation = ConfigurationManager.AppSettings["DatabaseLocation"];
         private string UserAccountDatabaseEncryptionPassword = ConfigurationManager.AppSettings["UserAccountDatabaseEncryptionPassword"];
@@ -19,8 +19,8 @@ namespace FileCanBlog.Code
         private string UserAccountDatabaseEncryptionPasswordHash;
         public AccountHandler()
         {
-            FileCanDbUser = new FileCanDB<UserModel>(DatabaseLocation, "Admin", "Users", StorageType.encrypted, false);
             UserAccountDatabaseEncryptionPasswordHash = Encryption.GetHash(UserAccountDatabaseEncryptionPassword, GetBytes(UserAccountDatabaseEncryptionSalt));
+            FileCanDbUser = new FileCanDB<UserModel>(DatabaseLocation, "Admin", "Users", false, UserAccountDatabaseEncryptionPasswordHash);
         }
 
         private static byte[] GetBytes(string str)
@@ -32,7 +32,7 @@ namespace FileCanBlog.Code
 
         public List<UserModel> GetUsers()
         {
-            List<UserModel> users = FileCanDbUser.GetPackets(0, 1000, UserAccountDatabaseEncryptionPasswordHash).Select(x => x.Data).ToList();
+            List<UserModel> users = FileCanDbUser.ReadList(0, 1000).Select(x => x.Data).ToList();
             return users;
         }
 
@@ -43,13 +43,13 @@ namespace FileCanBlog.Code
             user.LoginCount = 0;
             user.Password = Encryption.GetHash(user.Password, GetBytes(user.Salt));
             user.EnabledDate = DateTime.Now;
-            FileCanDbUser.InsertPacket(user.Username, user, UserAccountDatabaseEncryptionPasswordHash);
+            FileCanDbUser.Insert(user.Username, user);
             return true;
         }
 
         public UserModel Login(string username, string password, out string message)
         {
-            UserModel user = FileCanDbUser.GetPacket(username, UserAccountDatabaseEncryptionPasswordHash).Data;
+            UserModel user = FileCanDbUser.Read(username).Data;
             if (user.EnabledDate > DateTime.Now)
             {
                 message = "Locked";
@@ -65,7 +65,7 @@ namespace FileCanBlog.Code
             {
                 user.EnabledDate = DateTime.Now.AddMinutes(15);
             }
-            FileCanDbUser.UpdatePacket(username, user);
+            FileCanDbUser.Update(username, user);
             message = "Failed";
             return null;
         }

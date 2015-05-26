@@ -12,8 +12,5 @@ namespace FileCanBlog.Models
         public string Salt { get; set; }
         public int LoginCount { get; set; }
         public DateTime EnabledDate { get; set; }
-
-
-
     }
 }

@@ -16,7 +16,7 @@ namespace FileCanBlog.Code
         private string SectionTitle;
         public PageHandler(string SectionTitle)
         {
-            FileCanDbPosts = new FileCanDB<PageModel>(DatabaseLocation, "Pages", SectionTitle, StorageType.json, true);
+            FileCanDbPosts = new FileCanDB<PageModel>(DatabaseLocation, "Pages", SectionTitle, true, StorageType.json);
             this.SectionTitle = SectionTitle;
         }
 
