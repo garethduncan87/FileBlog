@@ -13,11 +13,9 @@ namespace FileCanBlog.Code
     public class PageHandler
     {
         private FileCanDB<PageModel> FileCanDbPosts;
-        private string SectionTitle;
-        public PageHandler(string SectionTitle)
+        public PageHandler()
         {
-            FileCanDbPosts = new FileCanDB<PageModel>(DatabaseLocation, "Pages", SectionTitle, true, StorageType.json);
-            this.SectionTitle = SectionTitle;
+            FileCanDbPosts = new FileCanDB<PageModel>(DatabaseLocation, "Blogs", "Articles", true, StorageType.json);
         }
 
         private string DatabaseLocation = ConfigurationManager.AppSettings["DatabaseLocation"];
@@ -25,18 +23,17 @@ namespace FileCanBlog.Code
         /// Create or save a page
         /// </summary>
         /// <param name="page"></param>
-        /// <param name="section"></param>
         /// <returns></returns>
         public bool Save(PageModel page)
         { 
             FileCanDbPosts.Insert(page.TitleUrlFriendly, page);
-            LoadPagesIntoCache();
+            Cache();
             return true;
         }
 
         public List<string> GetCurrentCategories()
         {
-            return HttpRuntime.Cache[SectionTitle + "Categories"] as List<string>;
+            return HttpRuntime.Cache["Categories"] as List<string>;
         }
 
         public bool PageTitleAlreadyExists(string title)
@@ -52,35 +49,13 @@ namespace FileCanBlog.Code
         {
             PageModel page = FileCanDbPosts.Read(Title).Data;
             page.Archive = true;
-            LoadPagesIntoCache();
+            Cache();
             return FileCanDbPosts.Update(Title, page);
         }
 
         public bool Delete(string Title)
         {
             return FileCanDbPosts.Delete(Title);
-        }
-
-        public int SectionTotalPages(bool IncludeArchive)
-        {
-            if (IncludeArchive)
-                return FileCanDbPosts.ReadList(0, 1000).Select(x => x.Data).ToList().Count;
-
-            if (HttpRuntime.Cache[SectionTitle + "-" + "Pages"] == null)
-                LoadPagesIntoCache();
-
-            return (HttpRuntime.Cache[SectionTitle + "-" + "Pages"] as List<PageModel>).Count;
-        }
-
-        public bool DeleteAll()
-        {
-            //delete all pages in section
-            List<PageModel> pages = FileCanDbPosts.ReadList(0, 1000).Select(x => x.Data).ToList();
-            foreach (PageModel page in pages)
-            {
-                Delete(page.TitleUrlFriendly);
-            }
-            return true;
         }
 
         /// <summary>
@@ -94,10 +69,10 @@ namespace FileCanBlog.Code
             if (archived)
                 return FileCanDbPosts.Read(Title).Data; //archived pages are not stored in cache
 
-            if (HttpRuntime.Cache[SectionTitle + "-" + Title] == null)
-                LoadPagesIntoCache();
+            if (HttpRuntime.Cache[Title] == null)
+                Cache();
             
-            return HttpRuntime.Cache[SectionTitle + "-" + Title] as PageModel;
+            return HttpRuntime.Cache[Title] as PageModel;
         }
 
         
@@ -125,8 +100,7 @@ namespace FileCanBlog.Code
 
         private List<PageModel> GetPages(bool archived, string Category = "")
         {
-            string SectionPagesCacheName = string.Format("{0}-Pages", SectionTitle);
-            string SectionCategoryPagesCacheName = string.Format("{0}-{1}-Pages", SectionTitle, Category);
+            string CategoryPagesCacheName = string.Format("{0}-Pages", Category);
             if (archived)
                 return FileCanDbPosts.ReadList(0, 1000).Select(x => x.Data).Where(y => y.Archive).ToList();
 
@@ -134,32 +108,20 @@ namespace FileCanBlog.Code
             if(!string.IsNullOrEmpty(Category))
             {
                 //Get pages from non category cache
-                if (HttpRuntime.Cache[SectionCategoryPagesCacheName] == null)
-                    LoadPagesIntoCache();
+                if (HttpRuntime.Cache[CategoryPagesCacheName] == null)
+                    Cache();
                 
-                pages = HttpRuntime.Cache[SectionCategoryPagesCacheName] as List<PageModel>;
+                pages = HttpRuntime.Cache[CategoryPagesCacheName] as List<PageModel>;
             }
-            else
-            {
-                //get all pages in section
-                if (HttpRuntime.Cache[SectionPagesCacheName] == null)
-                    LoadPagesIntoCache();
-                
-                pages = HttpRuntime.Cache[SectionPagesCacheName] as List<PageModel>;
-                    
-            }
-
             return pages;
         }
 
         /// <summary>
         /// Load all pages into cache.
-        /// A cache for each section.
         /// A cache for each category.
         /// Could be intensive if alot of pages.... will need to look into async solution
         /// </summary>
-        /// <param name="SectionTitle"></param>
-        private void LoadPagesIntoCache()
+        private void Cache()
         {
             
             List<PageModel> results = FileCanDbPosts.ReadList(0, 1000).Select(x => x.Data).Where(y=>y.Archive != true).Where(y => y.PublishDate <= DateTime.Now).ToList();
@@ -168,26 +130,33 @@ namespace FileCanBlog.Code
             Parallel.ForEach(results, page =>
             {
                 //add each page to cache
-                HttpRuntime.Cache.Insert(SectionTitle + "-" + page.TitleUrlFriendly, page);
+                HttpRuntime.Cache.Insert(page.TitleUrlFriendly, page);
                 if(page.Categories != null)
-                    Categories.AddRange(page.CategoriesList);
+                    Categories.AddRange(page.Categories);
                 
                 //Create cache of categories with pages in
             });
+
             List<string> DistinctCategories = Categories.Distinct().ToList();
-            HttpRuntime.Cache.Insert(SectionTitle + "-" + "Categories", DistinctCategories);
+            HttpRuntime.Cache.Insert("Categories", DistinctCategories);
 
 
             Parallel.ForEach(DistinctCategories, category =>
             {
-                string ListPagesCacheName = string.Format("{0}-{1}-Pages", SectionTitle, category);
+                string ListPagesCacheName = string.Format("{0}-Pages", category);
                 List<PageModel> CategoryPages = results.Where(x => x.Categories.Equals(category)).ToList();
                 HttpRuntime.Cache.Insert(ListPagesCacheName, CategoryPages);
             });
 
-            HttpRuntime.Cache.Insert(SectionTitle + "-" + "Pages", results);  
+            HttpRuntime.Cache.Insert("Pages", results);  
         }
 
+        private void CacheAllPages()
+        {
 
+
+        }
+
+        
     }
 }

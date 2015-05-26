@@ -6,7 +6,7 @@
         foreach (var item in Model)
         {
             <li>
-                <a href="@Url.Action("Index", "Page", new { section = item.page.Section, title = item.page.TitleUrlFriendly })">
+                <a href="@Url.Action("Index", "Page", new { title = item.page.TitleUrlFriendly })">
 
                     <div>
                         <h2>@Html.DisplayFor(m => item.page.Title)</h2>

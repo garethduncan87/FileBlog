@@ -7,13 +7,13 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 
-namespace FileCanBlog.Controllers
+namespace FileCanBlog.Areas.Admin.Controllers
 {
     public class PageController : Controller
     {
-        public ActionResult Index(string section, string title)
+        public ActionResult Index(string title)
         {
-            PageHandler handler = new PageHandler(section);
+            PageHandler handler = new PageHandler();
             PageModel page = handler.Load(title);
             if(page == null)
                 throw new HttpException(404, "Page doesn't exist");
@@ -24,28 +24,26 @@ namespace FileCanBlog.Controllers
             return View(pageview);
         }
 
-        public ActionResult Create(string section)
+        public ActionResult Create()
         {
-            PageHandler handler = new PageHandler(section);
+            PageHandler handler = new PageHandler();
             PageViewModel pageview = new PageViewModel();
             pageview.page = new PageModel();
             pageview.page.PublishDate = DateTime.Now;
-            pageview.page.Section = section;
             pageview.categories = handler.GetCurrentCategories();
             return View(pageview);
         }
 
         [HttpPost]
-        public ActionResult Create(PageViewModel pageview, string section, string Command)
+        public ActionResult Create(PageViewModel pageview, string Command)
         {
             pageview.page.Modified = DateTime.Now;
             pageview.page.Created = DateTime.Now;
             pageview.page.Archive = false;
-            pageview.page.Section = section;
             if (!ModelState.IsValid)
                 return View(pageview);
 
-            PageHandler handler = new PageHandler(section);
+            PageHandler handler = new PageHandler();
             if (handler.PageTitleAlreadyExists(pageview.page.TitleUrlFriendly))
             {
                 ModelState.AddModelError("Title", "Title is already in use");
@@ -58,9 +56,9 @@ namespace FileCanBlog.Controllers
             throw new HttpException(404, "Something went wrong...");
         }
 
-        public ActionResult Archive(string title, string section)
+        public ActionResult Archive(string title)
         {
-            PageHandler handler = new PageHandler(section);
+            PageHandler handler = new PageHandler();
             PageModel page = handler.Load(title);
             if (page == null)
                 throw new HttpException(404, "Page doesn't exist");
@@ -72,13 +70,13 @@ namespace FileCanBlog.Controllers
         }
 
         [HttpPost]
-        public ActionResult Archive(string title, string section, string Command)
+        public ActionResult Archive(string title, string Command)
         {
             if (Command == "archive")
             {
-                PageHandler handler = new PageHandler(section);
+                PageHandler handler = new PageHandler();
                 if (handler.Archive(title))
-                    return RedirectToAction("List", new { section = section, page = 1 });
+                    return RedirectToAction("List", new { page = 1 });
             }
             else
                 return View();
@@ -86,9 +84,9 @@ namespace FileCanBlog.Controllers
             throw new HttpException(404, "Something went wrong...");
         }
 
-        public ActionResult Delete(string title, string section)
+        public ActionResult Delete(string title)
         {
-            PageHandler handler = new PageHandler(section);
+            PageHandler handler = new PageHandler();
             PageModel page = handler.Load(title);
             if (page == null)
                 throw new HttpException(404, "Page doesn't exist");
@@ -100,15 +98,15 @@ namespace FileCanBlog.Controllers
         }
 
         [HttpPost]
-        public ActionResult Delete(string title, string section, string Command)
+        public ActionResult Delete(string title, string Command)
         {
             string deletemessage = string.Empty;
             if (Command == "delete")
             {
-                PageHandler handler = new PageHandler(section);
+                PageHandler handler = new PageHandler();
 
                 if (handler.Delete(title))
-                    return RedirectToAction("List", new { section = section, page = 1 });
+                    return RedirectToAction("List", new {  page = 1 });
             }
             else
                 return View();
@@ -116,9 +114,9 @@ namespace FileCanBlog.Controllers
             throw new HttpException(404, deletemessage);
         }
 
-        public ActionResult Edit(string title, string section)
+        public ActionResult Edit(string title)
         {
-            PageHandler handler = new PageHandler(section);
+            PageHandler handler = new PageHandler();
             PageModel page = handler.Load(title);
             if (page == null)
                 throw new HttpException(404, "Page doesn't exist");
@@ -130,13 +128,13 @@ namespace FileCanBlog.Controllers
         }
 
         [HttpPost]
-        public ActionResult Edit(PageModel page, string section, string Command)
+        public ActionResult Edit(PageModel page, string Command)
         {
             page.Modified = DateTime.Now;
             if (Command != "save")
                 return View();
 
-            PageHandler handler = new PageHandler(section);
+            PageHandler handler = new PageHandler();
             if(handler.Save(page))
             {
                 PageViewModel pageview = new PageViewModel();
@@ -147,9 +145,9 @@ namespace FileCanBlog.Controllers
             throw new HttpException(404, "Something went wrong...");
         }
 
-        public ActionResult List(string section, int page = 1, bool archived = false, bool descending = false, string sort = "", string category = "")
+        public ActionResult List(int page = 1, bool archived = false, bool descending = false, string sort = "", string category = "")
         {
-            PageHandler handler = new PageHandler(section);
+            PageHandler handler = new PageHandler();
             int take = 10;
             int skip = (page - 1) * take;
             int total;
