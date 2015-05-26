@@ -12,7 +12,7 @@ namespace FileCanBlog.Code
 {
     public class PageHandler
     {
-        private IFileCanDB<PageModel> FileCanDbPosts;
+        private FileCanDB<PageModel> FileCanDbPosts;
         private string SectionTitle;
         public PageHandler(string SectionTitle)
         {
@@ -29,7 +29,7 @@ namespace FileCanBlog.Code
         /// <returns></returns>
         public bool Save(PageModel page)
         { 
-            FileCanDbPosts.InsertPacket(page.TitleUrlFriendly, page);
+            FileCanDbPosts.Insert(page.TitleUrlFriendly, page);
             LoadPagesIntoCache();
             return true;
         }
@@ -41,7 +41,7 @@ namespace FileCanBlog.Code
 
         public bool PageTitleAlreadyExists(string title)
         {
-            var data = FileCanDbPosts.GetPacket(title);
+            var data = FileCanDbPosts.Read(title);
             if (data == null)
                 return false;
 
@@ -50,21 +50,21 @@ namespace FileCanBlog.Code
 
         public bool Archive(string Title)
         {
-            PageModel page = FileCanDbPosts.GetPacket(Title).Data;
+            PageModel page = FileCanDbPosts.Read(Title).Data;
             page.Archive = true;
             LoadPagesIntoCache();
-            return FileCanDbPosts.UpdatePacket(Title, page);
+            return FileCanDbPosts.Update(Title, page);
         }
 
         public bool Delete(string Title)
         {
-            return FileCanDbPosts.DeletePacket(Title);
+            return FileCanDbPosts.Delete(Title);
         }
 
         public int SectionTotalPages(bool IncludeArchive)
         {
             if (IncludeArchive)
-                return FileCanDbPosts.GetPackets(0, 1000).Select(x => x.Data).ToList().Count;
+                return FileCanDbPosts.ReadList(0, 1000).Select(x => x.Data).ToList().Count;
 
             if (HttpRuntime.Cache[SectionTitle + "-" + "Pages"] == null)
                 LoadPagesIntoCache();
@@ -75,7 +75,7 @@ namespace FileCanBlog.Code
         public bool DeleteAll()
         {
             //delete all pages in section
-            List<PageModel> pages = FileCanDbPosts.GetPackets(0, 1000).Select(x => x.Data).ToList();
+            List<PageModel> pages = FileCanDbPosts.ReadList(0, 1000).Select(x => x.Data).ToList();
             foreach (PageModel page in pages)
             {
                 Delete(page.TitleUrlFriendly);
@@ -92,7 +92,7 @@ namespace FileCanBlog.Code
         public PageModel Load(string Title, bool archived = false)
         {
             if (archived)
-                return FileCanDbPosts.GetPacket(Title).Data; //archived pages are not stored in cache
+                return FileCanDbPosts.Read(Title).Data; //archived pages are not stored in cache
 
             if (HttpRuntime.Cache[SectionTitle + "-" + Title] == null)
                 LoadPagesIntoCache();
@@ -128,7 +128,7 @@ namespace FileCanBlog.Code
             string SectionPagesCacheName = string.Format("{0}-Pages", SectionTitle);
             string SectionCategoryPagesCacheName = string.Format("{0}-{1}-Pages", SectionTitle, Category);
             if (archived)
-                return FileCanDbPosts.GetPackets(0, 1000).Select(x => x.Data).Where(y => y.Archive).ToList();
+                return FileCanDbPosts.ReadList(0, 1000).Select(x => x.Data).Where(y => y.Archive).ToList();
 
             List<PageModel> pages = new List<PageModel>();
             if(!string.IsNullOrEmpty(Category))
@@ -162,7 +162,7 @@ namespace FileCanBlog.Code
         private void LoadPagesIntoCache()
         {
             
-            List<PageModel> results = FileCanDbPosts.GetPackets(0, 1000).Select(x => x.Data).Where(y=>y.Archive != true).Where(y => y.PublishDate <= DateTime.Now).ToList();
+            List<PageModel> results = FileCanDbPosts.ReadList(0, 1000).Select(x => x.Data).Where(y=>y.Archive != true).Where(y => y.PublishDate <= DateTime.Now).ToList();
 
             List<string> Categories = new List<string>();
             Parallel.ForEach(results, page =>
