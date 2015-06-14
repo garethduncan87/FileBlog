@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Web;
 
 namespace FileCanBlog.Models
@@ -21,7 +22,10 @@ namespace FileCanBlog.Models
         {
             get
             {
-                return new string(Title.Where(ch => !Path.GetInvalidFileNameChars().Contains(ch)).ToArray());
+
+                string FriendlyTitle = Regex.Replace(Title, @"[^A-Za-z0-9_\.~]+", "-");
+                FriendlyTitle = FriendlyTitle.TrimStart('-').TrimEnd('-');
+                return FriendlyTitle;
             }
         }
     }
