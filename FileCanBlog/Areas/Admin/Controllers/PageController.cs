@@ -11,10 +11,20 @@ namespace FileCanBlog.Areas.Admin.Controllers
 {
     public class PageController : Controller
     {
-        public ActionResult Index(string title)
+        private PageHandler _pageHandler;
+        public PageController()
         {
-            PageHandler handler = new PageHandler();
-            PageModel page = handler.Load(title);
+            _pageHandler = new PageHandler();
+        }
+
+        public ActionResult Index()
+        {
+            return View();
+        }
+
+        public ActionResult Details(string title)
+        {
+            PageModel page = _pageHandler.Load(title);
             if(page == null)
                 throw new HttpException(404, "Page doesn't exist");
 
@@ -26,11 +36,9 @@ namespace FileCanBlog.Areas.Admin.Controllers
 
         public ActionResult Create()
         {
-            PageHandler handler = new PageHandler();
             PageViewModel pageview = new PageViewModel();
             pageview.page = new PageModel();
             pageview.page.PublishDate = DateTime.Now;
-            pageview.categories = handler.GetCurrentCategories();
             return View(pageview);
         }
 
@@ -43,23 +51,21 @@ namespace FileCanBlog.Areas.Admin.Controllers
             if (!ModelState.IsValid)
                 return View(pageview);
 
-            PageHandler handler = new PageHandler();
-            if (handler.PageTitleAlreadyExists(pageview.page.TitleUrlFriendly))
+            if (_pageHandler.PageTitleAlreadyExists(pageview.page.TitleUrlFriendly))
             {
                 ModelState.AddModelError("Title", "Title is already in use");
                 return View(pageview);
             }
 
-            if(handler.Save(pageview.page))
-                return View(pageview);
+            if (_pageHandler.Save(pageview.page))
+                return RedirectToAction("Edit", "Page", new { title = pageview.page.TitleUrlFriendly });
 
             throw new HttpException(404, "Something went wrong...");
         }
 
         public ActionResult Archive(string title)
         {
-            PageHandler handler = new PageHandler();
-            PageModel page = handler.Load(title);
+            PageModel page = _pageHandler.Load(title);
             if (page == null)
                 throw new HttpException(404, "Page doesn't exist");
 
@@ -74,8 +80,7 @@ namespace FileCanBlog.Areas.Admin.Controllers
         {
             if (Command == "archive")
             {
-                PageHandler handler = new PageHandler();
-                if (handler.Archive(title))
+                if (_pageHandler.Archive(title))
                     return RedirectToAction("List", new { page = 1 });
             }
             else
@@ -86,8 +91,7 @@ namespace FileCanBlog.Areas.Admin.Controllers
 
         public ActionResult Delete(string title)
         {
-            PageHandler handler = new PageHandler();
-            PageModel page = handler.Load(title);
+            PageModel page = _pageHandler.Load(title);
             if (page == null)
                 throw new HttpException(404, "Page doesn't exist");
 
@@ -103,9 +107,7 @@ namespace FileCanBlog.Areas.Admin.Controllers
             string deletemessage = string.Empty;
             if (Command == "delete")
             {
-                PageHandler handler = new PageHandler();
-
-                if (handler.Delete(title))
+                if (_pageHandler.Delete(title))
                     return RedirectToAction("List", new {  page = 1 });
             }
             else
@@ -116,8 +118,10 @@ namespace FileCanBlog.Areas.Admin.Controllers
 
         public ActionResult Edit(string title)
         {
-            PageHandler handler = new PageHandler();
-            PageModel page = handler.Load(title);
+            if (string.IsNullOrEmpty(title))
+                throw new HttpException(404, "Page doesn't exist");
+
+            PageModel page = _pageHandler.Load(title);
             if (page == null)
                 throw new HttpException(404, "Page doesn't exist");
 
@@ -131,15 +135,16 @@ namespace FileCanBlog.Areas.Admin.Controllers
         public ActionResult Edit(PageModel page, string Command)
         {
             page.Modified = DateTime.Now;
-            if (Command != "save")
-                return View();
 
-            PageHandler handler = new PageHandler();
-            if(handler.Save(page))
+            if(_pageHandler.Save(page))
             {
                 PageViewModel pageview = new PageViewModel();
                 pageview.page = page;
-                return View(pageview);
+                if (Command == "Save")
+                    return View(pageview);
+                else
+                    return RedirectToAction("Details", "Page", new { title = page.TitleUrlFriendly });
+               
             }
                
             throw new HttpException(404, "Something went wrong...");
@@ -147,24 +152,17 @@ namespace FileCanBlog.Areas.Admin.Controllers
 
         public ActionResult List(int page = 1, bool archived = false, bool descending = false, string sort = "", string category = "")
         {
-            PageHandler handler = new PageHandler();
             int take = 10;
             int skip = (page - 1) * take;
             int total;
             List<PageModel> pages = new List<PageModel>();
 
-            pages = handler.List(category, skip, take, sort, descending, archived, out total);
+            pages = _pageHandler.List(category, skip, take, sort, descending, archived, out total);
 
-            List<PageViewModel> PageViewModels = new List<PageViewModel>();
+            PageListViewModel MyPageListViewModel = new PageListViewModel();
+            MyPageListViewModel.Pages = pages;
 
-            foreach (PageModel p in pages)
-            {
-                PageViewModel PageView = new PageViewModel();
-                PageView.page = p;
-                PageViewModels.Add(PageView);
-            }
-
-            return View(PageViewModels);
+            return View(MyPageListViewModel);
         }
     }
 }

@@ -1,16 +1,17 @@
-﻿@model IEnumerable<FileCanBlog.ViewModels.PageViewModel>
+﻿@model FileCanBlog.ViewModels.PageListViewModel
 
 <ul>
-    @if (Model != null && Model.Count() != 0)
+    @if (Model != null && Model.Pages.Count() != 0)
     {
-        foreach (var item in Model)
+        foreach (var item in Model.Pages)
         {
             <li>
-                <a href="@Url.Action("Index", "Page", new { title = item.page.TitleUrlFriendly })">
+                <a href="@Url.Action("Edit", "Page", new { title = item.TitleUrlFriendly })">
 
                     <div>
-                        <h2>@Html.DisplayFor(m => item.page.Title)</h2>
-                        <p>@Html.DisplayFor(m => item.page.Description)</p>
+                        <h2>@Html.DisplayFor(m => item.Title)</h2>
+                        <p>@Html.DisplayFor(m => item.Description)</p>
+                        
                     </div>
                 </a>
             </li>
