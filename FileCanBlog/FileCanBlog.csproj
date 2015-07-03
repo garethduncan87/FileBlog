@@ -161,7 +161,6 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Areas\Admin\Models\" />
-    <Folder Include="UploadedImages\" />
     <Folder Include="Views\Account\" />
   </ItemGroup>
   <PropertyGroup>

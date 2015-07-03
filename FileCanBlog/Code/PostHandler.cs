@@ -93,7 +93,6 @@ namespace FileCanBlog.Code
         /// <returns></returns>
         public PostModel Load(string Title)
         {
-            
             if (string.IsNullOrEmpty(Title))
                 return null;
 

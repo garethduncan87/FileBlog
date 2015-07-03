@@ -27,6 +27,10 @@
     </div>
 
     <div class="container body-content">
+        @if (ViewBag.Error != null)
+        {
+            <div id="Errors">@ViewBag.Error</div>
+        }
         @RenderBody()
         <hr />
         <footer>
