@@ -1,0 +1,102 @@
+﻿@model FileCanBlog.ViewModels.PostViewModel
+
+@{
+    ViewBag.Title = Html.DisplayNameFor(model => model.Post.Title).ToString();
+}
+
+<h2>@Html.DisplayNameFor(model => model.Post.Title)</h2>
+
+<div>
+    <h4>PostModel</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Post.Title)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Post.Title)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Post.Description)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Post.Description)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Post.Content)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Post.Content)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Post.ImageName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Post.ImageName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Post.ImageUrl)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Post.ImageUrl)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Post.Created)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Post.Created)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Post.Modified)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Post.Modified)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Post.Archive)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Post.Archive)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Post.PublishDate)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Post.PublishDate)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Post.TitleUrlFriendly)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Post.TitleUrlFriendly)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Post.Categories)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Post.Categories)
+        </dd>
+
+    </dl>
+</div>
