@@ -2,13 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Web;
 
 namespace FileCanBlog.ViewModels
 {
-    public class PageListViewModel
+    public class PostViewModel
     {
-        public List<PageModel> Pages { get; set; }
+        public PostModel Post { get; set; }
     }
 }

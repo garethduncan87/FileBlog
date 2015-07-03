@@ -1,5 +1,8 @@
-﻿using System;
+﻿using FileCanBlog.Code;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -7,23 +10,38 @@ using System.Web;
 
 namespace FileCanBlog.Models
 {
-    public class PageModel
+    public class PostModel
     {
         public string Title { get; set; }
+
+        [Required]
         public string Description { get; set; }
+
+        [Required]
+        [DataType(DataType.MultilineText)]
         public string Content { get; set; }
-        public string Image { get; set; }
+
+        public string ImageName { get; set; }
+
+        public string ImageUrl
+        {
+            get
+            {
+                return ConfigurationManager.AppSettings["WebFilesLocation"] + "\\" + ImageName;
+            }
+        }
+
         public DateTime Created { get; set; }
         public DateTime Modified { get; set; }
         public bool Archive { get; set; }
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public DateTime PublishDate { get; set; }
         public string TitleUrlFriendly
         {
             get
             {
-                string FriendlyTitle = Regex.Replace(Title, @"[^A-Za-z0-9_\.~]+", "-");
-                FriendlyTitle = FriendlyTitle.TrimStart('-').TrimEnd('-');
-                return FriendlyTitle;
+                return UrlHandler.UrlFriendlyName(Title);
             }
         }
 
@@ -39,8 +57,7 @@ namespace FileCanBlog.Models
                         .Where(x => !string.IsNullOrWhiteSpace(x))
                         .ToList();
                 }
-                return null;
-                
+                return null; 
             }
         }
     }

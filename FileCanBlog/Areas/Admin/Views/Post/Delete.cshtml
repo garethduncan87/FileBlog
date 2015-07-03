@@ -1,0 +1,14 @@
+﻿@model FileCanBlog.Areas.Admin.ViewModels.AdminPostViewModel
+@{
+    ViewBag.Title = "Delete";
+}
+
+<h2>Delete</h2>
+@Html.DisplayFor(m=>m.Post.Title)
+<p>Are you sure you want to delete this article? This is can not be undone!</p>
+
+@using (Html.BeginForm())
+{
+    <input type="submit" name="Command" value="Yes" />
+}
+<a href="@Url.Action("Details", "Page", new { title = Model.Post.TitleUrlFriendly })">Cancel</a>
