@@ -1,0 +1,16 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Gareth.Wales</title>
+</head>
+<body>
+
+    @if (ViewBag.Error != null)
+    {
+        <div id="Errors">@ViewBag.Error</div>
+    }
+    
+    @RenderBody()
+</body>
+</html>

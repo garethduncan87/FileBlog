@@ -1,0 +1,14 @@
+﻿@model FileCanDB.Blog.Areas.Admin.ViewModels.AdminPostViewModel
+
+
+
+<p>Are you sure you want to archive this page?</p>
+
+@Html.DisplayFor(m=>m.Post.Title)
+
+@using (Html.BeginForm())
+{
+    <input type="submit" value="Yes" name="Command" />
+}
+
+<a href="@Url.Action("Details", "Page", new { title = Model.Post.TitleUrlFriendly })">Cancel</a>
